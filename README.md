@@ -12,4 +12,4 @@ Publicado con GitHub Pages desde a rama `main` (carpeta raíz).
 ## Notas
 - Todo o xogo está nun único ficheiro: `index.html`.
 - Fóra de Claude, a clasificación e as estatísticas gárdanse só no navegador de cada persoa.
-  Para unha clasificación en liña pública haberá que conectalo a Supabase.
+  A clasificación en liña e as pistas compartidas usan Supabase (proxecto xogos, prefixo eb_). Ver supabase.sql.
