@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="gl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>En bólas! · Clasificación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
+<style>
+:root{--ground:#e3b45b;--dot:#c9963f;--paper:#fbf6ea;--ink:#141414;--red:#e63228;--yel:#f6d743;--muted:#5a4a32}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:'Bricolage Grotesque',system-ui,sans-serif;color:var(--ink);background-color:var(--ground);background-image:radial-gradient(var(--dot) 1.3px,transparent 1.5px);background-size:12px 12px;-webkit-user-select:none;user-select:none}
+#app{height:100%;max-width:540px;margin:0 auto;display:flex;flex-direction:column;padding:10px 12px 12px;gap:8px}
+header{display:flex;align-items:center;gap:10px}
+h1{margin:0;font-weight:800;font-size:clamp(22px,7vw,30px);letter-spacing:-.03em;text-shadow:3px 3px 0 var(--red);line-height:1;flex:1}
+.play{flex:none;font-weight:800;font-size:14px;color:var(--ink);text-decoration:none;background:var(--yel);border:2.5px solid var(--ink);border-radius:10px 14px 9px 13px;padding:6px 12px;box-shadow:3px 3px 0 var(--ink)}
+.play:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:inherit;font-weight:700;font-size:14px;color:var(--ink);background:#fff;border:2.5px solid var(--ink);border-radius:9px 13px 8px 12px;padding:4px 10px;cursor:pointer}
+.tabs button.sel{background:var(--yel);box-shadow:2px 2px 0 var(--ink)}
+.tabs.len button{background:var(--paper)}.tabs.len button.sel{background:var(--ink);color:var(--paper)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.panel{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--paper);border:3px solid var(--ink);border-radius:12px 16px 10px 14px;box-shadow:4px 4px 0 var(--ink);overflow:hidden}
+.sub{font-size:13px;font-weight:700;color:var(--muted);padding:8px 12px 4px}
+.list{flex:1;min-height:0;overflow-y:auto;padding:0 8px 8px;-webkit-overflow-scrolling:touch}
+ol{list-style:none;margin:0;padding:0}
+li{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:2px dashed rgba(0,0,0,.12)}
+li:last-child{border-bottom:0}
+.k{width:26px;text-align:right;font-weight:800;font-size:16px;flex:none}
+li.p1 .k,li.p2 .k,li.p3 .k{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:13px}
+li.p1 .k{background:var(--yel)}li.p2 .k{background:#dfe3e8}li.p3 .k{background:#e8b07a}
+.ball{width:24px;height:24px;border-radius:50%;border:2.5px solid var(--ink);flex:none}
+.nm{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+.v{font-weight:800;font-variant-numeric:tabular-nums;flex:none}
+.msg{padding:18px 14px;text-align:center;font-weight:700;line-height:1.35}
+.msg .big{font-size:34px;display:block;margin-bottom:6px}
+.msg a{color:var(--ink)}
+.foot{font-size:11px;color:var(--muted);padding:4px 12px 8px}
+@media (max-width:360px){.tabs button{font-size:12px;padding:3px 7px}.play{font-size:12px;padding:5px 8px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><h1>En bólas!</h1><a class="play" id="play" href="./" target="_top"></a></header>
+  <div class="tabs len" id="lens"></div>
+  <div class="tabs" id="periods"></div>
+  <div class="panel"><div class="sub" id="sub"></div><div class="list" id="list"></div><div class="foot" id="foot"></div></div>
+</div>
+<script>
+const SB={url:'https://pmvbllviitutbnoqpnrs.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtdmJsbHZpaXR1dGJub3FwbnJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTE3NTAsImV4cCI6MjEwNTM4Nzc1MH0.5WMnLv9oY3PXXLjCrxukt6qu2xkNwOvrkbcxYqUrdgo'};
+const T={
+ gl:{play:'Xogar ›',lens:['Curta','Normal','Longa'],per:['Hoxe','Semana','Mes','Sempre'],today:'Reto do día · {d}',week:'Últimos 7 días · puntos',month:'{m} · puntos',all:'Desde sempre · puntos',pts:'pts',days:'{n} días',day1:'1 día',anon:'Anónimo',empty:'Aínda ninguén xogou hoxe este circuíto.',empty2:'Aínda non hai partidas neste período.',go:'Sé a primeira persoa!',err:'Non se puido cargar a clasificación. Proba de novo nun intre.',load:'Cargando…',foot:'Puntos por posto cada día: 10, 8, 6, 5, 4, 3, 2, 1.',upd:'Actualizado ás {h}'},
+ es:{play:'Jugar ›',lens:['Corta','Normal','Larga'],per:['Hoy','Semana','Mes','Siempre'],today:'Reto del día · {d}',week:'Últimos 7 días · puntos',month:'{m} · puntos',all:'Desde siempre · puntos',pts:'pts',days:'{n} días',day1:'1 día',anon:'Anónimo',empty:'Todavía nadie ha jugado hoy este circuito.',empty2:'Todavía no hay partidas en este periodo.',go:'¡Sé la primera persona!',err:'No se pudo cargar la clasificación. Prueba de nuevo en un momento.',load:'Cargando…',foot:'Puntos por puesto cada día: 10, 8, 6, 5, 4, 3, 2, 1.',upd:'Actualizado a las {h}'},
+ ca:{play:'Juga ›',lens:['Curta','Normal','Llarga'],per:['Avui','Setmana','Mes','Sempre'],today:'Repte del dia · {d}',week:'Últims 7 dies · punts',month:'{m} · punts',all:'Des de sempre · punts',pts:'pts',days:'{n} dies',day1:'1 dia',anon:'Anònim',empty:'Encara ningú no ha jugat avui aquest circuit.',empty2:'Encara no hi ha partides en aquest període.',go:'Sigues la primera persona!',err:'No s\'ha pogut carregar la classificació. Torna-ho a provar d\'aquí a una estona.',load:'Carregant…',foot:'Punts per posició cada dia: 10, 8, 6, 5, 4, 3, 2, 1.',upd:'Actualitzat a les {h}'},
+ eu:{play:'Jokatu ›',lens:['Laburra','Normala','Luzea'],per:['Gaur','Astea','Hilabetea','Beti'],today:'Eguneko erronka · {d}',week:'Azken 7 egunak · puntuak',month:'{m} · puntuak',all:'Betidanik · puntuak',pts:'pt',days:'{n} egun',day1:'Egun 1',anon:'Anonimoa',empty:'Inork ez du gaur zirkuitu hau jokatu.',empty2:'Oraindik ez dago partidarik aldi honetan.',go:'Izan zu lehena!',err:'Ezin izan da sailkapena kargatu. Saiatu berriro geroago.',load:'Kargatzen…',foot:'Puntuak postuaren arabera egunero: 10, 8, 6, 5, 4, 3, 2, 1.',upd:'Eguneratua: {h}'}
+};
+const Q=new URLSearchParams(location.search);
+const lang=['gl','ca','eu','es'].includes((Q.get('lang')||'').toLowerCase())?Q.get('lang').toLowerCase():'gl';
+const L=T[lang];document.documentElement.lang=lang;
+const N=Math.max(1,Math.min(100,parseInt(Q.get('n'))||10));
+const LENK=['curta','normal','longa'];
+const lenAlias={curta:0,corta:0,short:0,laburra:0,normal:1,media:1,medio:1,mitjana:1,normala:1,longa:2,larga:2,llarga:2,luzea:2,long:2};
+const perAlias={hoxe:0,hoy:0,avui:0,gaur:0,today:0,dia:0,semana:1,setmana:1,astea:1,week:1,mes:2,month:2,hilabetea:2,sempre:3,siempre:3,beti:3,always:3,all:3,todo:3};
+let lenI=lenAlias[(Q.get('v')||'').toLowerCase()]??1, perI=perAlias[(Q.get('p')||'').toLowerCase()]??0;
+const $=s=>document.querySelector(s);
+const fmt=s=>s.toFixed(2).replace('.',lang==='es'||lang==='gl'||lang==='ca'||lang==='eu'?',':'.')+' s';
+const esc=x=>String(x||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tr=(s,v)=>s.replace(/\{(\w+)\}/g,(_,k)=>v[k]);
+const POINTS=[10,8,6,5,4,3,2,1];
+/* datas segundo Europe/Madrid */
+const MAD=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',year:'numeric',month:'numeric',day:'numeric'});
+function madYMD(d){const o={};for(const p of MAD.formatToParts(d))o[p.type]=+p.value;return o}
+const iso=o=>`${o.year}-${String(o.month).padStart(2,'0')}-${String(o.day).padStart(2,'0')}`;
+function madIso(offsetDays=0){return iso(madYMD(new Date(Date.now()+offsetDays*864e5)))}
+function niceDate(o,opt){return new Date(Date.UTC(o.year,o.month-1,o.day,12)).toLocaleDateString(lang,{timeZone:'UTC',...opt})}
+/* bóla en miniatura (CSS, sen renderizar a esfera) */
+const ballCss=b=>{const a=(b&&b.base)||'#f6d743',c=(b&&b.c2)||'#e63228';return `background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.85) 0 13%,transparent 15%),radial-gradient(circle at 70% 80%,rgba(0,0,0,.18),transparent 60%),linear-gradient(155deg,${a} 0 38%,${c} 38% 60%,${a} 60%)`};
+async function sb(path){const r=await fetch(SB.url+'/rest/v1/'+path,{headers:{apikey:SB.key,Authorization:'Bearer '+SB.key}});if(!r.ok)throw new Error(r.status);return r.json()}
+function tabs(){
+  $('#play').textContent=L.play;
+  $('#lens').innerHTML=L.lens.map((n,i)=>`<button class="${i===lenI?'sel':''}" data-l="${i}" aria-pressed="${i===lenI}">${n}</button>`).join('');
+  $('#periods').innerHTML=L.per.map((n,i)=>`<button class="${i===perI?'sel':''}" data-p="${i}" aria-pressed="${i===perI}">${n}</button>`).join('');
+}
+$('#lens').onclick=e=>{const b=e.target.closest('button');if(b){lenI=+b.dataset.l;tabs();load()}};
+$('#periods').onclick=e=>{const b=e.target.closest('button');if(b){perI=+b.dataset.p;tabs();load()}};
+const cache=new Map();let reqId=0;
+async function load(){
+  const id=++reqId,len=LENK[lenI],today=madIso(0),o=madYMD(new Date());
+  let sub='';
+  if(perI===0)sub=tr(L.today,{d:niceDate(o,{day:'numeric',month:'long'})});
+  else if(perI===1)sub=L.week;else if(perI===2)sub=tr(L.month,{m:niceDate(o,{month:'long',year:'numeric'})});else sub=L.all;
+  $('#sub').textContent=sub;$('#foot').textContent=perI?L.foot:'';
+  const key=`${len}|${perI}|${today}`;
+  if(!cache.has(key))$('#list').innerHTML=`<div class="msg">${L.load}</div>`;
+  try{
+    let rows=cache.get(key);
+    if(!rows){
+      if(perI===0)rows=await sb(`eb_results?select=player_id,name,ball,time&kind=eq.daily&len=eq.${len}&day=eq.${today}&order=time.asc&limit=${N}`);
+      else{const from=perI===1?madIso(-6):perI===2?iso({...o,day:1}):null;
+        rows=await sb(`eb_results?select=player_id,name,ball,time,day&kind=eq.daily&len=eq.${len}${from?`&day=gte.${from}`:''}&day=lte.${today}&order=day.asc,time.asc&limit=10000`)}
+      cache.set(key,rows);setTimeout(()=>cache.delete(key),60000)}
+    if(id!==reqId)return;
+    let items;
+    if(perI===0)items=rows.map(r=>({name:r.name,ball:r.ball,v:fmt(r.time)}));
+    else{const pts=new Map(),byDay=new Map();for(const r of rows){if(!byDay.has(r.day))byDay.set(r.day,[]);byDay.get(r.day).push(r)}
+      for(const list of byDay.values()){list.sort((a,b)=>a.time-b.time).forEach((r,i)=>{const p=pts.get(r.player_id)||{name:r.name,ball:r.ball,p:0,d:0};p.p+=POINTS[i]||1;p.d++;p.name=r.name||p.name;p.ball=r.ball||p.ball;pts.set(r.player_id,p)})}
+      items=[...pts.values()].sort((a,b)=>b.p-a.p||b.d-a.d).slice(0,N).map(p=>({name:p.name,ball:p.ball,v:`${p.p} ${L.pts}`,sm:p.d===1?L.day1:tr(L.days,{n:p.d})}))}
+    if(!items.length){$('#list').innerHTML=`<div class="msg"><span class="big">🎱</span>${perI===0?L.empty:L.empty2}<br><a href="./" target="_top">${L.go}</a></div>`;return}
+    $('#list').innerHTML=`<ol>${items.map((it,i)=>`<li class="p${i+1}"><span class="k">${i+1}</span><span class="ball" style="${ballCss(it.ball)}"></span><span class="nm">${esc(it.name)||L.anon}${it.sm?`<small>${it.sm}</small>`:''}</span><span class="v">${it.v}</span></li>`).join('')}</ol>`;
+  }catch(e){if(id===reqId)$('#list').innerHTML=`<div class="msg"><span class="big">😵</span>${L.err}</div>`}
+}
+tabs();load();
+setInterval(()=>{if(!document.hidden){cache.clear();load()}},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){cache.clear();load()}});
+</script>
+</body>
+</html>

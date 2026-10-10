@@ -3,13 +3,17 @@
 Xogo web de carreiras de bólas (canicas): reto do día, modo aposta, modo conducir,
 bólas deseñables, editor de pistas co dedo e catro idiomas (galego, català, euskara, castellano).
 
-## Como xogar en local
-Abre `index.html` nun navegador. Non precisa instalación nin servidor.
+## Ficheiros
+- `index.html` — o xogo enteiro.
+- `ranking.html` — só a clasificación do reto do día, lixeira, para incrustar nun iframe (p. ex. en cagando).
+- `supabase.sql` — táboas e función no proxecto Supabase `xogos` (prefixo `eb_`).
 
-## Publicación
-Publicado con GitHub Pages desde a rama `main` (carpeta raíz).
+## ranking.html · parámetros
+- `lang` = gl (por defecto), ca, eu, es
+- `n` = número de postos (por defecto 10, máximo 100)
+- `p` = vista inicial: hoxe (por defecto), semana, mes, sempre
+- `v` = variante inicial: curta, normal (por defecto), longa
 
-## Notas
-- Todo o xogo está nun único ficheiro: `index.html`.
-- Fóra de Claude, a clasificación e as estatísticas gárdanse só no navegador de cada persoa.
-  Para unha clasificación en liña pública haberá que conectalo a Supabase.
+Exemplo: `ranking.html?lang=gl&n=5&p=hoxe&v=normal`
+
+"Hoxe" calcúlase segundo a hora de España (Europe/Madrid).
